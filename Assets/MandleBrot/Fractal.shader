@@ -110,10 +110,6 @@ Shader "Fractal/Fractal"
                     }
                     time += 1;
                 }
-	    if (escaped == 0)
-	    {
-	    	return 0;
-	    }
 
             
             if (dotline == 1)
@@ -129,12 +125,12 @@ Shader "Fractal/Fractal"
                 col *= smoothstep(3 , 0 , a);
 
                 float esca = log2(log(length(escz)) / log(20));
-                col += smoothstep(0 , 3 , a) * (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca + _ColorShift))) * 0.5 + 0.5);
+                col += smoothstep(0 , 3 , a) * (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
                 //col = tex2D(_MainTex , float2(n, _Color));
                 if (a > 3)
                 {
                     float esca = log2(log(length(escz)) / log(20));
-                    float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca + _ColorShift))) * 0.5 + 0.5);
+                    float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
                     //col = tex2D(_MainTex , float2(n, _Color));   
 
                     return col;
@@ -147,7 +143,7 @@ Shader "Fractal/Fractal"
             else
             {
                 float esca = log2(log(length(escz)) / log(20));
-                float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca + _ColorShift))) * 0.5 + 0.5);
+                float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
                 //col = tex2D(_MainTex , float2(n, _Color));   
 
                 return col;
@@ -159,7 +155,7 @@ Shader "Fractal/Fractal"
             /*
                 float a = log2(log(length(escz)) / log(20));
 
-                float4 col = sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - a + _ColorShift))) * 0.5 + 0.5;
+                float4 col = sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - a))) * 0.5 + 0.5;
                 //col = tex2D(_MainTex , float2(n, _Color));
 
                 
