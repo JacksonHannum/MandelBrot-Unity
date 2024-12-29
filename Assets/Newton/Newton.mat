@@ -35,5 +35,5 @@ Material:
     - _Cycles: 200
     - _Rot: 0
     m_Colors:
-    - _Area: {r: 0, g: 0, b: 4, a: 4}
+    - _Area: {r: -0.25, g: -0.25, b: -0.25, a: 0.25}
   m_BuildTextureStacks: []

@@ -43,7 +43,7 @@ Material:
     m_Floats:
     - _Color: 0.61
     - _ColorCycle: 1
-    - _ColorShift: 7.6112604
+    - _ColorShift: 81.62627
     - _Cycles: 500
     - _EnableExternalAlpha: 0
     - _Rot: 0
