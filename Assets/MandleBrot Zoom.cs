@@ -61,7 +61,7 @@ public class MandleBrotZoom : MonoBehaviour
     MandleBrot.SetFloat("_ColorCycle" , cycle);
     MandleBrot.SetFloat("_Rot" , rot);
 
-    shift += Time.deltaTime * 2;
+    shift += Time.deltaTime * 1;
 
     }
 

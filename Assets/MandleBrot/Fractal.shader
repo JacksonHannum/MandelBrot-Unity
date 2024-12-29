@@ -65,15 +65,20 @@ Shader "Fractal/Fractal"
             {
                 float2 z;
                 float2 c;
+                float2 rzold;
                 float2 zold;
                 float2 escz;
+                float2 rlinez;
                 float2 linez;
 
                 c = rotate(((i.uv)) , 0 , _Rot) * _Area.zw + _Area.xy;
                 c /= 100;
+                //z = float2(0.1 , 0.7);
+                z = 0;
 
                 float n;
                 float escaped;
+                float rdotline;
                 float dotline;
                 float a;
                 float angle;
@@ -81,19 +86,24 @@ Shader "Fractal/Fractal"
 
                 while (time < _Cycles)
                 {
-                    zold = rotate (z , 0 , _ColorShift);
+                    zold = z;
+                    rzold = rotate (z , 0 , _ColorShift);
                     z = float2((z.x * z.x) - (z.y * z.y) , 2 * z.x * z.y) + c;
-                  //  if ((z.x * z.x) + (z.y * z.y) > 400)
-                 //   {
-            //            break;
-                //    }
 
+                    if (dot(z , rzold) > 400)
+                    {
+                        if (rdotline == 0)
+                        {
+                            rdotline = 1;
+                            rlinez = z;
+                        }
+                    }
                     if (dot(z , zold) > 400)
                     {
                         if (dotline == 0)
-                        {
-                            dotline = 1;
-                            linez = z;
+                        {    
+                            linez = z;  
+                            dotline = 1; 
                         }
                     }
                     if (escaped == 0)
@@ -104,33 +114,48 @@ Shader "Fractal/Fractal"
                             escz = z;
                         }
                     }
-                    if (dotline == 0)
+                    if (rdotline == 0)
                     {
-                        n +=1;
+                        n += 1;
                     }
                     time += 1;
                 }
 
+
+            angle = atan2(escz.x , escz.y);
+            a = 2 * log2(log(length(escz)) / log(20));
+
+        
+            float b = abs(abs((angle)) - 3.14159 / 2) / (a + 1.61803);
+            b = (sin(sin(b * 3.14159)) - 0.5) * 0.5 + 0.5;
+
             
-            if (dotline == 1)
+            
+
+            
+            if (rdotline == 1)
             {
-                a = log2(log(length(linez)) / log(20));
+                angle = atan2(rlinez.x , rlinez.y);
+                a = log2(log(length(rlinez)) / log(20));
 
-                angle = atan2(linez.x , linez.y);
 
-                float4 col = sin((float4(0.3 , 0.45, 0.65 , 1) * n)) * 0.5 + 0.5;
+
+                float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * n * 0.5 + _ColorShift + 2 *(b)))) * 0.5 + 0.5;
+                col = float4(1,1,1,1);
                 //col = tex2D(_MainTex , float2(n, _Color));
 
-                col *= cos(angle * 2) * 0.2 + 1;
-                col *= smoothstep(3 , 0 , a);
+                //col *= cos(angle * 2) * 0.2 + 1;
+                //col *= smoothstep(3 , 0 , a);
 
                 float esca = log2(log(length(escz)) / log(20));
-                col += smoothstep(0 , 3 , a) * (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
+                col += smoothstep(0 , 3 , a) * (sin((float4(0.3 , 0.45, 0.65 , 1) * 0.5 * (escaped - esca) + _ColorShift)) * 0.5 + 0.5);
                 //col = tex2D(_MainTex , float2(n, _Color));
+
+                
                 if (a > 3)
                 {
                     float esca = log2(log(length(escz)) / log(20));
-                    float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
+                    float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * 0.5 * (escaped - esca) + _ColorShift)) * 0.5 + 0.5);
                     //col = tex2D(_MainTex , float2(n, _Color));   
 
                     return col;
@@ -139,13 +164,14 @@ Shader "Fractal/Fractal"
                 {
                     return col;
                 }
+                
             }
             else
             {
                 float esca = log2(log(length(escz)) / log(20));
-                float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * (escaped - esca))) * 0.5 + 0.5);
+                float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * 0.5 * (escaped - esca) + _ColorShift)) * 0.5 + 0.5);
                 //col = tex2D(_MainTex , float2(n, _Color));   
-
+                return 0;
                 return col;
             }
 
