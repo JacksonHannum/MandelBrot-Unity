@@ -9,7 +9,9 @@ Shader "Fractal/Fractal"
         _Color ("Color" , range(0 , 1)) = 0.5
         _ColorCycle ("ColorCycle" , range(1 , 100)) = 20
         _Rot ("Rot" , range(-3.14159 , 3.14159)) = 0
-
+        _IsJulia ("IsJulia", int) = 0
+        _PickoverScale ("PickoverScale" , range(0.0 , 100.0)) = 3.0
+        _JuliaRoot ("JuliaRoot" , vector) = (0.1 , 0.7 , 0 , 0)
     }
     SubShader
     {
@@ -49,6 +51,9 @@ Shader "Fractal/Fractal"
             float _ColorShift;
             float _ColorCycle;
             float _Rot;
+            int _IsJulia;
+            float2 _JuliaRoot;
+            float _PickoverScale;
             sampler2D _MainTex;
 
             float2 rotate(float2 pt , float2 pv , float ang)
@@ -71,16 +76,19 @@ Shader "Fractal/Fractal"
                 float2 rlinez;
                 float2 linez;
 
-                c = rotate((i.uv) , 0 , _Rot) * _Area.zw + _Area.xy;
-                c /= 100;
-                z = 0;
-            // MandelBrot
+                // This is MandelBrot (!Julia)
+                if (_IsJulia == 0) {
+                    c = rotate((i.uv) , 0 , _Rot) * _Area.zw + _Area.xy;
+                    c /= 100;
+                    z = 0;
 
-            //    z = rotate(((i.uv)) , 0 , _Rot) * _Area.zw + _Area.xy;
-            //    z /= 100;
-            //    c = float2(0.1 , 0.7);
-            // Julia
-                
+                } else {
+
+                // Julia
+                    z = rotate(((i.uv)) , 0 , _Rot) * _Area.zw + _Area.xy;
+                    z /= 100;
+                    c = float2(0.1 , 0.7);
+                }
 
                 float n;
                 float escaped;
@@ -181,7 +189,10 @@ Shader "Fractal/Fractal"
 
                 // change the -2 to other values to make more colorful
                 mindist = mindist * 50;
-                float4 stcol = float4(-0 * mindist , 0 , -3 * mindist , 1);
+                float scale = 0 - _PickoverScale;
+
+                float4 stcol = float4(scale * mindist , scale * mindist , scale * mindist , 1);
+                //float4 stcol = float4(-0 * mindist , 0 , -3 * mindist , 1);
 
                 // Returning here means 'pickover-stalk', not returning here means combined mandelBrot and Stalk
                 //For Pure MandelBrot, Make stcol always 0 after line 175
