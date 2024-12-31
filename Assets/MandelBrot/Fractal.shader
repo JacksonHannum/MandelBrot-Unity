@@ -12,6 +12,8 @@ Shader "Fractal/Fractal"
         _IsJulia ("IsJulia", int) = 0
         _PickoverScale ("PickoverScale" , range(0.0 , 100.0)) = 3.0
         _JuliaRoot ("JuliaRoot" , vector) = (0.1 , 0.7 , 0 , 0)
+        _IsPickover ("IsPickover" , int) = 1
+        _FractalFade ("FractalFade" , range(0.0 , 1.0)) = 1.0
     }
     SubShader
     {
@@ -52,8 +54,11 @@ Shader "Fractal/Fractal"
             float _ColorCycle;
             float _Rot;
             int _IsJulia;
+            
             float2 _JuliaRoot;
             float _PickoverScale;
+            int _IsPickover;
+            float _FractalFade;
             sampler2D _MainTex;
 
             float2 rotate(float2 pt , float2 pv , float ang)
@@ -192,12 +197,18 @@ Shader "Fractal/Fractal"
                 float scale = 0 - _PickoverScale;
 
                 float4 stcol = float4(scale * mindist , scale * mindist , scale * mindist , 1);
+                if (_IsPickover == 1)
+                {
+                    return _FractalFade * -stcol;
+                }
+                //float4 stcol = float4(scale * mindist , scale * mindist , scale * mindist , 1);
                 //float4 stcol = float4(-0 * mindist , 0 , -3 * mindist , 1);
+                stcol = 0;
 
                 // Returning here means 'pickover-stalk', not returning here means combined mandelBrot and Stalk
                 //For Pure MandelBrot, Make stcol always 0 after line 175
 
-                return -stcol;
+                //return -stcol;
                 //return (0.8 + stcol);
                 //float esca = log2(log(length(escz)) / log(20));
                 //float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * 2 * ((escaped - esca + _ColorShift * 5)))) * 0.5 + 0.5);
@@ -247,11 +258,11 @@ Shader "Fractal/Fractal"
                     float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * 0.5 * (escaped - esca))) * 0.5 + 0.5);
                     //col = tex2D(_MainTex , float2(n, _Color));   
 
-                    return (stcol + col);
+                    return _FractalFade * (stcol + col);
                 }
                 else
                 {
-                    return (stcol + col);
+                    return _FractalFade * (stcol + col);
                 }
                 
             }
@@ -261,7 +272,7 @@ Shader "Fractal/Fractal"
                 float4 col = (sin((float4(0.3 , 0.45, 0.65 , 1) * 0.5 * (escaped - esca))) * 0.5 + 0.5);
                 //col = tex2D(_MainTex , float2(n, _Color));   
 
-                return (stcol + col);
+                return _FractalFade * (stcol + col);
             }
 
             
