@@ -17,6 +17,9 @@ public class MandleBrotZoom : MonoBehaviour
 
     private float pickoverlinear = -2.59026716545f;
     private float pickoverscale = 0.075f;
+    public Slider pickoverslider;
+    private float pickovermin = -9f;
+    private float pickovermax = 8.5f;
 
     public float juliaroot_x = 0.1f;
     public float juliaroot_y = 0.7f;
@@ -77,6 +80,8 @@ public class MandleBrotZoom : MonoBehaviour
         //juliasize = julia.sizeDelta;
         mandelbrotsize = mandelbrot.localScale;
         juliasize = julia.localScale;
+
+        pickoverslider.value = PickoverToLinear(pickoverlinear);
     }
 
     public void UiGetStartSize()
@@ -157,6 +162,24 @@ public class MandleBrotZoom : MonoBehaviour
             fractalchange = Time.time;
             fractalfadeout = true;
         }
+    }
+
+    private float LinearToPickover(float val)
+    {
+        return pickovermin + (pickovermax - pickovermin) * (val - pickoverslider.minValue) / (pickoverslider.maxValue - pickoverslider.minValue);
+    }
+
+    private float PickoverToLinear(float val)
+    {
+        return pickoverslider.minValue + (pickoverslider.maxValue - pickoverslider.minValue) * (val - pickovermin) / (pickovermax - pickovermin);
+    }
+
+    public void PickoverSlider(float val)
+    {
+        pickoverlinear = LinearToPickover(pickoverslider.value);
+        pickoverscale = Mathf.Exp(pickoverlinear);
+        Debug.Log("pickoverlinear " + pickoverlinear + " pickoverscale " + pickoverscale);
+        MandleBrot.SetFloat("_PickoverScale" , pickoverscale);
     }
 
     public void JuliaToggled(bool value)
