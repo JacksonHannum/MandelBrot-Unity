@@ -27,7 +27,11 @@ public class MandleBrotZoom : MonoBehaviour
     public int isJulia = 0;
     public int isJuliaTarget = 0;
     public int keydowncount = 0;
+
     public GameObject ui;
+    public GameObject fractalselectionui;
+    public GameObject pickoversliderui;
+
     private bool uiactive = false;
 
     private bool uifadein = false;
@@ -82,6 +86,18 @@ public class MandleBrotZoom : MonoBehaviour
         juliasize = julia.localScale;
 
         pickoverslider.value = PickoverToLinear(pickoverlinear);
+    }
+
+    public void FractalSelection()
+    {
+        pickoversliderui.SetActive(false);
+        fractalselectionui.SetActive(true);
+    }
+
+    public void PickoverSelection()
+    {
+        fractalselectionui.SetActive(false);
+        pickoversliderui.SetActive(true);
     }
 
     public void UiGetStartSize()
