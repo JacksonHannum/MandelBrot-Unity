@@ -43,16 +43,17 @@ Material:
     m_Floats:
     - _Color: 0.61
     - _ColorCycle: 1
-    - _ColorShift: 674.69415
+    - _ColorShift: 141.70773
     - _Cycles: 50
     - _EnableExternalAlpha: 0
     - _FractalFade: 1
-    - _IsJulia: 0
+    - _FractalType: 0
+    - _IsJulia: 1
     - _IsPickover: 1
-    - _PickoverScale: 0.005808972
+    - _PickoverScale: 0.11495208
     - _Rot: 0
     m_Colors:
-    - _Area: {r: -261.60287, g: -155.15927, b: 28.56393, a: 28.56393}
+    - _Area: {r: -116.84859, g: 0.86317736, b: 5.7368307, a: 5.7368307}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _JuliaRoot: {r: 0.1, g: 0.7, b: 0, a: 0}

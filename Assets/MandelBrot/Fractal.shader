@@ -9,7 +9,7 @@ Shader "Fractal/Fractal"
         _Color ("Color" , range(0 , 1)) = 0.5
         _ColorCycle ("ColorCycle" , range(1 , 100)) = 20
         _Rot ("Rot" , range(-3.14159 , 3.14159)) = 0
-        _IsJulia ("IsJulia", int) = 0
+        _FractalType ("FractalType", int) = 0
         _PickoverScale ("PickoverScale" , range(0.0 , 100.0)) = 3.0
         _JuliaRoot ("JuliaRoot" , vector) = (0.1 , 0.7 , 0 , 0)
         _IsPickover ("IsPickover" , int) = 1
@@ -53,7 +53,7 @@ Shader "Fractal/Fractal"
             float _ColorShift;
             float _ColorCycle;
             float _Rot;
-            int _IsJulia;
+            int _FractalType;
             
             float2 _JuliaRoot;
             float _PickoverScale;
@@ -82,18 +82,23 @@ Shader "Fractal/Fractal"
                 float2 linez;
 
                 // This is MandelBrot (!Julia)
-                if (_IsJulia == 0) {
+                if (_FractalType == 0) {
                     c = rotate((i.uv) , 0 , _Rot) * _Area.zw + _Area.xy;
                     c /= 100;
                     z = 0;
 
-                } else {
+                } else if (_FractalType == 1){
 
                 // Julia
                     z = rotate(((i.uv)) , 0 , _Rot) * _Area.zw + _Area.xy;
                     z /= 100;
                     c = float2(0.1 , 0.7);
+                } else if (_FractalType == 2) {
+                    c = rotate(((i.uv)) , 0 , _Rot) * _Area.zw + _Area.xy;
+                    c /= 100;
+                    z = float2(0.1 , 0.7);
                 }
+
 
                 float n;
                 float escaped;

@@ -27,7 +27,7 @@ public class MandleBrotZoom : MonoBehaviour
     public float juliaroot_x = 0.1f;
     public float juliaroot_y = 0.7f;
 
-    public int isJulia = 0;
+    public int FractalType = 0;
     public int isJuliaTarget = 0;
     public int keydowncount = 0;
 
@@ -91,7 +91,7 @@ public class MandleBrotZoom : MonoBehaviour
         int randomIndex = Random.Range(0, presetList.presets.Count);
         PresetSO randomPreset = presetList.presets[randomIndex];
 
-        isJulia = randomPreset.isJulia ? 1 : 0;
+        FractalType = randomPreset.isJulia ? 1 : 0;
         scint = randomPreset.scint;
         screenpos = randomPreset.screenpos;
         pickoverlinear = randomPreset.pickoverlinear;
@@ -163,7 +163,7 @@ public class MandleBrotZoom : MonoBehaviour
 # if UNITY_EDITOR
         PresetSO preset = ScriptableObject.CreateInstance<PresetSO>();
         preset.isJulia = false;
-        if (isJulia == 1)
+        if (FractalType == 1)
         {
             preset.isJulia = true;
         }
@@ -222,7 +222,7 @@ public class MandleBrotZoom : MonoBehaviour
             if (Time.time - fractalchange > fractalfadetime) {
                 fractalfadeout = false;
                 MandleBrot.SetFloat("_FractalFade" , 0);
-                isJulia = isJuliaTarget;
+                FractalType = isJuliaTarget;
                 fractalfadein = true;
                 fractalchange = Time.time;
             }
@@ -257,7 +257,7 @@ public class MandleBrotZoom : MonoBehaviour
         if (uifadein || uifadeout || fractalfadein || fractalfadeout) {
             return;
         }
-        if (isJulia == 1)
+        if (FractalType == 1)
         {
             isJuliaTarget = 0;
             //MandleBrot.SetInt("_IsJulia" , isJulia);
@@ -293,7 +293,7 @@ public class MandleBrotZoom : MonoBehaviour
         if (uifadein || uifadeout || fractalfadein || fractalfadeout) {
             return;
         }
-        if (isJulia == 0)
+        if (FractalType == 0)
         {
             isJuliaTarget = 1;
             //MandleBrot.SetInt("_IsJulia" , isJulia);
@@ -432,7 +432,7 @@ public class MandleBrotZoom : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.J))
             {
-                isJulia = 1 - isJulia;
+                FractalType = 1 - FractalType;
                 keydowncount++;
                 //Debug.Log("Set isJulia to " + isJulia + " keydowncount = " + keydowncount);
             }
@@ -536,7 +536,7 @@ public class MandleBrotZoom : MonoBehaviour
         MandleBrot.SetFloat("_ColorCycle" , cycle);
         MandleBrot.SetFloat("_Rot" , rot);
         MandleBrot.SetFloat("_PickoverScale" , pickoverscale);
-        MandleBrot.SetInt("_IsJulia" , isJulia);
+        MandleBrot.SetInt("_FractalType" , FractalType);
 
         shift += Time.deltaTime * 1;
     }
