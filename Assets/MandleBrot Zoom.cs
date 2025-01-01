@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MandleBrotZoom : MonoBehaviour
 {
+    public PresetListSO presetList;
     public RawImage image;
     public Vector2 screenpos;
     public float screenscale;
@@ -31,6 +34,12 @@ public class MandleBrotZoom : MonoBehaviour
     public GameObject ui;
     public GameObject fractalselectionui;
     public GameObject pickoversliderui;
+    public GameObject statsui;
+    public GameObject saveuinextarrow;
+    public GameObject saveui;
+    public TMP_InputField saveuiname;
+
+    public Text statstext;
 
     private bool uiactive = false;
 
@@ -72,12 +81,30 @@ public class MandleBrotZoom : MonoBehaviour
     private bool touchfading = false;
     private float longtouchtime = 0.5f;
 
+    void PickRandomPreset()
+    {
+        if (presetList == null || presetList.presets.Count == 0)
+        {
+            return;
+        }
+
+        int randomIndex = Random.Range(0, presetList.presets.Count);
+        PresetSO randomPreset = presetList.presets[randomIndex];
+
+        isJulia = randomPreset.isJulia ? 1 : 0;
+        scint = randomPreset.scint;
+        screenpos = randomPreset.screenpos;
+        pickoverlinear = randomPreset.pickoverlinear;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         screenscale = .2f;
 
         screenpos = new Vector2(-25f, 0);
+        PickRandomPreset();
+
         MandleBrot.SetVector("_Area" , new Vector4(screenpos.x , screenpos.y , screenscale , screenscale));
 
         //mandelbrotsize = mandelbrot.sizeDelta;
@@ -86,6 +113,10 @@ public class MandleBrotZoom : MonoBehaviour
         juliasize = julia.localScale;
 
         pickoverslider.value = PickoverToLinear(pickoverlinear);
+
+# if UNITY_EDITOR
+        saveuinextarrow.SetActive(true);
+# endif
     }
 
     public void FractalSelection()
@@ -94,10 +125,69 @@ public class MandleBrotZoom : MonoBehaviour
         fractalselectionui.SetActive(true);
     }
 
+    public void StatsSelection()
+    {
+        pickoversliderui.SetActive(false);
+        statsui.SetActive(true);
+        saveui.SetActive(false);
+        saveuiname.text = "";
+    }
+
+    public void SaveSelection()
+    {
+        statsui.SetActive(false);
+        saveui.SetActive(true);
+    }
+
+    public void SaveUiFinshedEditing()
+    {
+        if (presetList == null)
+        {
+            Debug.Log("PresetList is null");
+            return;
+        }
+
+        if (saveuiname.text == "")
+        {
+            Debug.Log("No name entered");
+            return;
+        }
+        for (int i = 0; i < presetList.presets.Count; i++)
+        {
+            if (presetList.presets[i].name == saveuiname.text)
+            {
+                Debug.Log("Preset with name " + saveuiname.text + " already exists");
+                return;
+            }
+        }
+# if UNITY_EDITOR
+        PresetSO preset = ScriptableObject.CreateInstance<PresetSO>();
+        preset.isJulia = false;
+        if (isJulia == 1)
+        {
+            preset.isJulia = true;
+        }
+        preset.scint = scint;
+        preset.screenpos = screenpos;
+        preset.pickoverlinear = pickoverlinear;
+        AssetDatabase.CreateAsset(preset, "Assets/Presets/" + saveuiname.text + ".asset");
+        presetList.presets.Add(preset);
+        EditorUtility.SetDirty(presetList);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+# endif
+    }
+
+    private void SetStatsText()
+    {
+        statstext.text = "Screen Position: " + screenpos.x + "," + screenpos.y + "\nScreen Scale: " + scint + "\nStalk Density: " + pickoverlinear;
+    }
+
     public void PickoverSelection()
     {
         fractalselectionui.SetActive(false);
         pickoversliderui.SetActive(true);
+        statsui.SetActive(false);
     }
 
     public void UiGetStartSize()
@@ -194,8 +284,8 @@ public class MandleBrotZoom : MonoBehaviour
     {
         pickoverlinear = LinearToPickover(pickoverslider.value);
         pickoverscale = Mathf.Exp(pickoverlinear);
-        Debug.Log("pickoverlinear " + pickoverlinear + " pickoverscale " + pickoverscale);
-        MandleBrot.SetFloat("_PickoverScale" , pickoverscale);
+        //Debug.Log("pickoverlinear " + pickoverlinear + " pickoverscale " + pickoverscale);
+        //MandleBrot.SetFloat("_PickoverScale" , pickoverscale);
     }
 
     public void JuliaToggled(bool value)
@@ -249,6 +339,7 @@ public class MandleBrotZoom : MonoBehaviour
                 if (Time.time - uichange > uifadetime) {
                     uifadein = false;
                     uichange = Time.time;
+                    //uiactive = true;
                 }
             } else if (uifadeout) {
                 float t = (Time.time - uichange) / uifadetime;
@@ -257,6 +348,7 @@ public class MandleBrotZoom : MonoBehaviour
                     uifadeout = false;
                     uichange = Time.time;
                     ui.SetActive(false);
+                    //uiactive = false;
                 }
             } else {
                 if (Time.time - uichange > uitime && !uifinished) {
@@ -278,95 +370,116 @@ public class MandleBrotZoom : MonoBehaviour
         bool scint_changed = false;
 
         // Keyboard zoom 
-        if (Input.GetKey("i"))
-        {
-            scint -= Time.deltaTime;
-            scint_changed = true;
-        }
-        if (Input.GetKey("o"))
-        {
-            scint += Time.deltaTime;
-            scint_changed = true;
-        }
+        if (!uiactive && !uifadeout && !uifadein) {
 
-        // touch zoom
-        if (Input.touchCount == 2) {
-
-            Touch touch0 = Input.GetTouch(0);
-            Touch touch1 = Input.GetTouch(1);
-
-            float currentdistance = Vector2.Distance(touch0.position, touch1.position);
-            touchmoving = true;
-            touchfading = false;
-
-            if (touch0.phase == TouchPhase.Began || touch1.phase == TouchPhase.Began) {
-                initialtouchdistance = Vector2.Distance(touch0.position, touch1.position);
-            } else if (touch0.phase == TouchPhase.Moved || touch1.phase == TouchPhase.Moved) {
-                // TODO: not sure if this is correct
-                float zoomfactor = currentdistance / initialtouchdistance;
-                scint -= Time.deltaTime * Mathf.Log(zoomfactor);
+            if (Input.GetKey("i"))
+            {
+                scint -= Time.deltaTime;
                 scint_changed = true;
             }
-        }
+            if (Input.GetKey("o"))
+            {
+                scint += Time.deltaTime;
+                scint_changed = true;
+            }
 
 
-        if (Input.GetKey("q"))
-        {
-            rot += Time.deltaTime;
+
+            /*
+            if (Input.GetKey("k"))
+            {
+                scint -= Time.deltaTime;
+                scint_changed = true;
+            }
+            if (Input.GetKey("l"))
+            {
+                scint += Time.deltaTime;
+                scint_changed = true;
+            }
+            */
         }
-        if (Input.GetKey("e"))
-        {
-            rot -= Time.deltaTime;
+        // touch zoom
+        if (!uiactive && !uifadeout && !uifadein) {
+            if (Input.touchCount == 2 && !uiactive && !uifadeout && !uifadein) {
+
+                Touch touch0 = Input.GetTouch(0);
+                Touch touch1 = Input.GetTouch(1);
+
+                float currentdistance = Vector2.Distance(touch0.position, touch1.position);
+                touchmoving = true;
+                touchfading = false;
+
+                if (touch0.phase == TouchPhase.Began || touch1.phase == TouchPhase.Began) {
+                    initialtouchdistance = Vector2.Distance(touch0.position, touch1.position);
+                } else if (touch0.phase == TouchPhase.Moved || touch1.phase == TouchPhase.Moved) {
+                    // TODO: not sure if this is correct
+                    float zoomfactor = currentdistance / initialtouchdistance;
+                    scint -= Time.deltaTime * Mathf.Log(zoomfactor);
+                    scint_changed = true;
+                }
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            isJulia = 1 - isJulia;
-            keydowncount++;
-            //Debug.Log("Set isJulia to " + isJulia + " keydowncount = " + keydowncount);
-        }
+        if (!uiactive && !uifadeout && !uifadein) {
+            if (Input.GetKey("q"))
+            {
+                rot += Time.deltaTime;
+            }
+            if (Input.GetKey("e"))
+            {
+                rot -= Time.deltaTime;
+            }
 
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            if (!uifadein && !uifadeout && !fractalfadein && !fractalfadeout) {
-                uiactive = !uiactive;
-                if (uiactive) {
-                    uifadein = true;
-                    canvasGroup.alpha = 0;
-                    ui.SetActive(true);
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                isJulia = 1 - isJulia;
+                keydowncount++;
+                //Debug.Log("Set isJulia to " + isJulia + " keydowncount = " + keydowncount);
+            }
+
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                if (!uifadein && !uifadeout && !fractalfadein && !fractalfadeout) {
+                    uiactive = !uiactive;
+                    if (uiactive) {
+                        SetStatsText();
+                        uifadein = true;
+                        canvasGroup.alpha = 0;
+                        ui.SetActive(true);
+                    } else {
+                        uifadeout = true;
+                        canvasGroup.alpha = 1;
+                    }
+
+                    if (uiactive) {
+                        UiReset();
+                    }
+                    //ui.SetActive(uiactive);
+                    uichange = Time.time;
+                    uifinished = false;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                ispickover = 1 - ispickover;
+                MandleBrot.SetInt("_IsPickover" , ispickover);
+            }
+
+
+            if (Input.GetKey(KeyCode.P)) {
+
+                if (Input.GetKey(KeyCode.LeftShift)) {
+                    pickoverlinear -= Time.deltaTime;
                 } else {
-                    uifadeout = true;
-                    canvasGroup.alpha = 1;
+                    pickoverlinear += Time.deltaTime;
                 }
-               
-                if (uiactive) {
-                    UiReset();
-                }
-                //ui.SetActive(uiactive);
-                uichange = Time.time;
-                uifinished = false;
+
+                pickoverscale = Mathf.Exp(pickoverlinear);
+
+            } else if (first) {
+                pickoverscale = Mathf.Exp(pickoverlinear);
             }
-        }
-
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ispickover = 1 - ispickover;
-            MandleBrot.SetInt("_IsPickover" , ispickover);
-        }
-
-
-        if (Input.GetKey(KeyCode.P)) {
-
-            if (Input.GetKey(KeyCode.LeftShift)) {
-                pickoverlinear -= Time.deltaTime;
-            } else {
-                pickoverlinear += Time.deltaTime;
-            }
-
-            pickoverscale = Mathf.Exp(pickoverlinear);
-
-        } else if (first) {
-            pickoverscale = Mathf.Exp(pickoverlinear);
         }
 
 
@@ -377,7 +490,10 @@ public class MandleBrotZoom : MonoBehaviour
         }
 
         first = false;
-        Vector2 move = new Vector2(Input.GetAxis("Horizontal") * Time.deltaTime , Input.GetAxis("Vertical") * Time.deltaTime) * screenscale * 10;
+        Vector2 move = new Vector2(0 , 0);
+        if (!uiactive && !uifadeout && !uifadein) {
+            move = new Vector2(Input.GetAxis("Horizontal") * Time.deltaTime , Input.GetAxis("Vertical") * Time.deltaTime) * screenscale * 10;
+        }
 
         if (!uiactive && !uifadein && !uifadeout) {
             if (Input.touchCount == 1) {
@@ -397,12 +513,15 @@ public class MandleBrotZoom : MonoBehaviour
                 }
                 if (!touchfading && !touchmoving && touch.phase == TouchPhase.Stationary) {
                     if (Time.time - touchstart > longtouchtime) {
+                        SetStatsText();
                         uifadein = true;
+                        uiactive = true;
                         uichange = Time.time;
                         uifinished = false;
                         canvasGroup.alpha = 0;
                         ui.SetActive(true);
                         touchfading = true;
+                        UiReset();
                     }
                 }
             }
