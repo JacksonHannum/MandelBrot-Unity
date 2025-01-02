@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 02e8e919fc8274635bbb5a7b938cfc19, type: 3}
-  m_Name: waterfallblack2
+  m_Name: loopline2
   m_EditorClassIdentifier: 
-  name: waterfallblack
-  type: 1
-  scint: 1.3734902
-  screenpos: {x: 100.32087, y: -96.73663}
-  pickoverlinear: -2.973587
+  name: loopline
+  type: 0
+  scint: 0.5615602
+  screenpos: {x: 9.172869, y: -62.28895}
+  pickoverlinear: -1.132637

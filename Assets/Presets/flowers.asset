@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88ef495444f5147278767188030cef54, type: 3}
-  m_Name: flowers
+  m_Script: {fileID: 11500000, guid: 02e8e919fc8274635bbb5a7b938cfc19, type: 3}
+  m_Name: flowers2
   m_EditorClassIdentifier: 
-  isJulia: 1
+  name: flowers
+  type: 1
   scint: 0.7738825
   screenpos: {x: 100.95796, y: -59.298313}
   pickoverlinear: 0.1418679

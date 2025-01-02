@@ -4260,6 +4260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presetList: {fileID: 11400000, guid: e0f864c482cec494491fab8f08e0048d, type: 2}
+  presetList2: {fileID: 11400000, guid: 0f8a6a94d388b443ca306c54f9bd9480, type: 2}
   image: {fileID: 158573580}
   screenpos: {x: 0, y: 0}
   screenscale: 0
@@ -4272,7 +4273,7 @@ MonoBehaviour:
   pickoverslider: {fileID: 2005137124}
   juliaroot_x: 0.1
   juliaroot_y: 0.7
-  isJulia: 0
+  FractalType: 0
   isJuliaTarget: 0
   keydowncount: 0
   ui: {fileID: 1268455214}

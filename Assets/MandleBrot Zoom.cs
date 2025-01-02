@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -7,7 +8,7 @@ using TMPro;
 
 public class MandleBrotZoom : MonoBehaviour
 {
-    public PresetListSO presetList;
+    public PresetList2SO presetList2;
     public RawImage image;
     public Vector2 screenpos;
     public float screenscale;
@@ -83,15 +84,15 @@ public class MandleBrotZoom : MonoBehaviour
 
     void PickRandomPreset()
     {
-        if (presetList == null || presetList.presets.Count == 0)
+        if (presetList2 == null || presetList2.presets.Count == 0)
         {
             return;
         }
 
-        int randomIndex = Random.Range(0, presetList.presets.Count);
-        PresetSO randomPreset = presetList.presets[randomIndex];
+        int randomIndex = Random.Range(0, presetList2.presets.Count);
+        Preset2SO randomPreset = presetList2.presets[randomIndex];
 
-        FractalType = randomPreset.isJulia ? 1 : 0;
+        FractalType = randomPreset.type;
         scint = randomPreset.scint;
         screenpos = randomPreset.screenpos;
         pickoverlinear = randomPreset.pickoverlinear;
@@ -141,9 +142,9 @@ public class MandleBrotZoom : MonoBehaviour
 
     public void SaveUiFinshedEditing()
     {
-        if (presetList == null)
+        if (presetList2 == null)
         {
-            Debug.Log("PresetList is null");
+            Debug.Log("PresetList2 is null");
             return;
         }
 
@@ -152,27 +153,24 @@ public class MandleBrotZoom : MonoBehaviour
             Debug.Log("No name entered");
             return;
         }
-        for (int i = 0; i < presetList.presets.Count; i++)
+        for (int i = 0; i < presetList2.presets.Count; i++)
         {
-            if (presetList.presets[i].name == saveuiname.text)
+            if (presetList2.presets[i].name == saveuiname.text)
             {
                 Debug.Log("Preset with name " + saveuiname.text + " already exists");
                 return;
             }
         }
 # if UNITY_EDITOR
-        PresetSO preset = ScriptableObject.CreateInstance<PresetSO>();
-        preset.isJulia = false;
-        if (FractalType == 1)
-        {
-            preset.isJulia = true;
-        }
+        Preset2SO preset = ScriptableObject.CreateInstance<Preset2SO>();
+        preset.type = FractalType;
+        preset.name = saveuiname.text;
         preset.scint = scint;
         preset.screenpos = screenpos;
         preset.pickoverlinear = pickoverlinear;
         AssetDatabase.CreateAsset(preset, "Assets/Presets/" + saveuiname.text + ".asset");
-        presetList.presets.Add(preset);
-        EditorUtility.SetDirty(presetList);
+        presetList2.presets.Add(preset);
+        EditorUtility.SetDirty(presetList2);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 # endif
@@ -466,6 +464,10 @@ public class MandleBrotZoom : MonoBehaviour
                 MandleBrot.SetInt("_IsPickover" , ispickover);
             }
 
+//            if (Input.GetKeyDown(KeyCode.C))
+//            {
+//                ReadDirectoryPresets();
+//            }
 
             if (Input.GetKey(KeyCode.P)) {
 

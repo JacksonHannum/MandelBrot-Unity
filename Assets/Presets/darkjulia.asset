@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88ef495444f5147278767188030cef54, type: 3}
-  m_Name: darkjulia
+  m_Script: {fileID: 11500000, guid: 02e8e919fc8274635bbb5a7b938cfc19, type: 3}
+  m_Name: darkjulia2
   m_EditorClassIdentifier: 
-  isJulia: 1
+  name: darkjulia
+  type: 1
   scint: 2.485944
   screenpos: {x: 9.334366, y: -57.91875}
   pickoverlinear: -4.353091
